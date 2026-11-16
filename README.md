@@ -58,8 +58,8 @@ but not required – on CPU everything works, only slower.
 **1. Clone**
 
 ```bash
-git clone <your-repo-url>
-cd <repo-folder>
+git clone https://github.com/vinu2912/Speaker-identification-and-diarization.git
+cd Speaker-identification-and-diarization
 ```
 
 **2. Create a virtual environment**
