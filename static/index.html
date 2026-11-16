@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speaker Identification &amp; Summarization</title>
+<style>
+  :root {
+    --bg: #f5f4f0; --card: #ffffff; --ink: #1c1b19; --muted: #6d6a63; --line: #e4e1d9;
+    --accent: #2f5bd8; --accent-ink: #ffffff; --soft: #f0eee8;
+    --s0: #2f5bd8; --s1: #d9480f; --s2: #1f9d6b; --s3: #a23bbf;
+    --s4: #c2255c; --s5: #0b8fa6; --s6: #b07a00; --s7: #5b6470;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141413; --card: #1e1e1c; --ink: #edebe6; --muted: #9a968d; --line: #33322e;
+      --accent: #7c9cff; --accent-ink: #10131c; --soft: #272623;
+      --s0: #7c9cff; --s1: #ff8f5a; --s2: #4fd3a0; --s3: #d58cf0;
+      --s4: #ff7fa8; --s5: #4cc9e0; --s6: #e6b84a; --s7: #a9b1bd;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.55 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 40px 16px 80px; }
+  header h1 { font-size: 28px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
+  header p { margin: 0 0 28px; color: var(--muted); font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          padding: 22px; margin-bottom: 18px; }
+  h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+       margin: 0 0 14px; font-weight: 600; }
+
+  #drop { border: 2px dashed var(--line); border-radius: 12px; padding: 34px 16px; text-align: center;
+          cursor: pointer; transition: border-color .15s, background .15s; }
+  #drop:hover, #drop.over, #drop:focus-visible { border-color: var(--accent); background: var(--soft); outline: none; }
+  #drop strong { display: block; font-size: 17px; margin-bottom: 4px; }
+  #drop span { color: var(--muted); font-size: 14px; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+  .row label { font-size: 14px; color: var(--muted); }
+  select, button { font: inherit; border-radius: 9px; border: 1px solid var(--line);
+                   background: var(--card); color: var(--ink); padding: 9px 14px; }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent;
+                   font-weight: 600; margin-left: auto; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  #progress .bar { height: 8px; background: var(--soft); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+  #progress .fill { height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width .4s; }
+  #stage { font-size: 15px; }
+  #error { color: var(--s1); border-color: var(--s1); }
+
+  audio { width: 100%; margin-bottom: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .chip { background: var(--soft); border-radius: 99px; padding: 4px 12px; font-size: 13px; color: var(--muted); }
+  .chip b { color: var(--ink); font-weight: 600; }
+  #timeline { position: relative; height: 34px; background: var(--soft); border-radius: 8px;
+              overflow: hidden; cursor: pointer; }
+  #timeline .seg { position: absolute; top: 0; bottom: 0; opacity: .9; }
+  #playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); left: 0; pointer-events: none; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; font-size: 14px; }
+  .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+  .legend span.t { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .utt { display: grid; grid-template-columns: 52px 1fr; gap: 10px; padding: 9px 10px; border-radius: 9px;
+         border-left: 3px solid transparent; cursor: pointer; }
+  .utt:hover { background: var(--soft); }
+  .utt.active { background: var(--soft); border-left-color: currentColor; }
+  .utt time { color: var(--muted); font-size: 12.5px; padding-top: 3px; font-variant-numeric: tabular-nums; }
+  .utt .who { font-weight: 700; margin-right: 6px; }
+  .utt .text { color: var(--ink); }
+  .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .head h2 { margin: 0; }
+  .head button { font-size: 13px; padding: 6px 12px; }
+  #summary { font-size: 17px; line-height: 1.65; margin: 0; text-wrap: pretty; }
+  .hidden { display: none; }
+  footer { color: var(--muted); font-size: 12.5px; margin-top: 26px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Speaker Identification &amp; Summarization</h1>
+    <p>Hybrid CNN–GRU speaker embeddings · spectral clustering · Whisper transcription · conversation summary</p>
+  </header>
+
+  <section class="card">
+    <div id="drop" tabindex="0" role="button" aria-label="Choose an audio file">
+      <strong id="dropTitle">Drop an audio file here</strong>
+      <span id="dropHint">or click to choose — WAV, MP3, M4A, FLAC, OGG, or a video file</span>
+    </div>
+    <input id="file" type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.flac,.ogg,.opus,.aac,.wma,.mp4,.mkv,.webm" class="hidden">
+    <div class="row">
+      <label for="nspk">Number of speakers</label>
+      <select id="nspk">
+        <option value="0">Detect automatically</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option>
+        <option>5</option><option>6</option><option>7</option><option>8</option>
+      </select>
+      <button id="go" class="primary" disabled>Analyse recording</button>
+    </div>
+  </section>
+
+  <section id="progress" class="card hidden" aria-live="polite">
+    <div id="stage">Uploading…</div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </section>
+
+  <section id="error" class="card hidden" role="alert"></section>
+
+  <div id="results" class="hidden">
+    <section class="card">
+      <h2>Who spoke when</h2>
+      <audio id="player" controls></audio>
+      <div class="chips" id="chips"></div>
+      <div id="timeline" title="Click to jump"><div id="playhead"></div></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="card">
+      <div class="head">
+        <h2>Transcript</h2>
+        <button id="download">Download .txt</button>
+      </div>
+      <div id="transcript"></div>
+    </section>
+
+    <section class="card">
+      <h2>Summary of the conversation</h2>
+      <p id="summary"></p>
+      <div id="sectionsWrap" class="hidden">
+        <h2 style="margin-top:22px">Part by part</h2>
+        <div id="sections"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>Runs entirely on this computer. Speaker embeddings come from the CNN–GRU model trained on LibriSpeech train-clean-100.</footer>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const color = i => `var(--s${i % 8})`;
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+let file = null, result = null;
+
+// Tell the user up front when the page can't work yet.
+let ready = false;
+(async () => {
+  const notice = msg => { $("error").textContent = msg; $("error").classList.remove("hidden"); };
+  if (!location.protocol.startsWith("http"))
+    return notice("This page is a preview only. Start the app with run_app.bat and use http://127.0.0.1:8000 instead.");
+  try {
+    const h = await (await fetch("/api/health")).json();
+    if (h.model_trained) ready = true;
+    else notice("The CNN–GRU model is not trained yet. Run train.py first, then reload this page.");
+  } catch { notice("Cannot reach the app. Start it with run_app.bat."); }
+})();
+
+const drop = $("drop"), input = $("file");
+drop.onclick = () => input.click();
+drop.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } };
+drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); pick(e.dataTransfer.files[0]); };
+input.onchange = () => pick(input.files[0]);
+
+function pick(f) {
+  if (!f) return;
+  file = f;
+  $("dropTitle").textContent = f.name;
+  $("dropHint").textContent = `${(f.size / 1048576).toFixed(1)} MB — click to choose a different file`;
+  $("go").disabled = !ready;
+}
+
+function showError(msg) {
+  $("progress").classList.add("hidden");
+  $("error").textContent = msg;
+  $("error").classList.remove("hidden");
+  $("go").disabled = false;
+}
+
+$("go").onclick = async () => {
+  if (!file) return;
+  $("go").disabled = true;
+  $("error").classList.add("hidden");
+  $("results").classList.add("hidden");
+  $("progress").classList.remove("hidden");
+  $("stage").textContent = "Uploading…";
+  $("fill").style.width = "3%";
+  try {
+    const body = new FormData();
+    body.append("file", file);
+    body.append("num_speakers", $("nspk").value);
+    const res = await fetch("/api/jobs", { method: "POST", body });
+    if (!res.ok) throw new Error((await res.json()).detail || "Upload failed");
+    poll((await res.json()).id);
+  } catch (e) { showError(e.message); }
+};
+
+const stageBase = { "Loading audio": 5, "Identifying speakers (CNN-GRU + spectral clustering)": 12,
+                    "Transcribing (Whisper)": 25, "Summarising": 85, "Done": 100 };
+const stageSpan = { "Transcribing (Whisper)": 60, "Summarising": 14 };
+
+async function poll(id) {
+  try {
+    const job = await (await fetch(`/api/jobs/${id}`)).json();
+    if (job.status === "error") return showError("Could not process this file: " + job.error);
+    if (job.status === "done") {
+      $("progress").classList.add("hidden");
+      $("go").disabled = false;
+      return render(job.result);
+    }
+    $("stage").textContent = job.stage + "…";
+    const pct = (stageBase[job.stage] ?? 3) + (stageSpan[job.stage] ?? 0) * (job.progress || 0);
+    $("fill").style.width = pct + "%";
+    setTimeout(() => poll(id), 700);
+  } catch (e) { showError("Lost connection to the app. Is it still running?"); }
+}
+
+function render(r) {
+  result = r;
+  const player = $("player");
+  player.src = URL.createObjectURL(file);
+
+  $("chips").replaceChildren(...[
+    ["Length", fmt(r.duration)], ["Speakers", r.num_speakers],
+    ["Language", (r.language || "?").toUpperCase()], ["Turns", r.utterances.length],
+  ].map(([k, v]) => { const c = document.createElement("span"); c.className = "chip";
+    c.append(k + " "); const b = document.createElement("b"); b.textContent = v; c.append(b); return c; }));
+
+  const tl = $("timeline");
+  tl.querySelectorAll(".seg").forEach(n => n.remove());
+  for (const s of r.segments) {
+    const d = document.createElement("div");
+    d.className = "seg";
+    d.style.left = (100 * s.start / r.duration) + "%";
+    d.style.width = Math.max(0.15, 100 * (s.end - s.start) / r.duration) + "%";
+    d.style.background = color(s.speaker);
+    d.title = `Speaker ${s.speaker + 1}  ${fmt(s.start)}–${fmt(s.end)}`;
+    tl.prepend(d);
+  }
+  tl.onclick = e => { const b = tl.getBoundingClientRect();
+    player.currentTime = r.duration * (e.clientX - b.left) / b.width; player.play(); };
+
+  const total = r.speakers.reduce((a, s) => a + s.talk_time, 0) || 1;
+  $("legend").replaceChildren(...r.speakers.map(s => {
+    const el = document.createElement("div");
+    const dot = document.createElement("span"); dot.className = "dot"; dot.style.background = color(s.id);
+    const name = document.createElement("b"); name.textContent = s.name; name.style.color = color(s.id);
+    const t = document.createElement("span"); t.className = "t";
+    t.textContent = `  ${fmt(s.talk_time)} · ${Math.round(100 * s.talk_time / total)}%`;
+    el.append(dot, name, t); return el;
+  }));
+
+  $("transcript").replaceChildren(...r.utterances.map((u, i) => {
+    const row = document.createElement("div"); row.className = "utt"; row.dataset.i = i;
+    row.style.color = color(u.speaker);
+    const time = document.createElement("time"); time.textContent = fmt(u.start);
+    const body = document.createElement("div");
+    const who = document.createElement("span"); who.className = "who"; who.textContent = `Speaker ${u.speaker + 1}:`;
+    const text = document.createElement("span"); text.className = "text"; text.textContent = u.text;
+    body.append(who, text); row.append(time, body);
+    row.onclick = () => { player.currentTime = u.start; player.play(); };
+    return row;
+  }));
+  if (!r.utterances.length) $("transcript").textContent = "No speech was recognised in this recording.";
+
+  $("summary").textContent = r.summary || "Nothing to summarise.";
+  const secs = r.summary_sections || [];
+  $("sectionsWrap").classList.toggle("hidden", !secs.length);
+  $("sections").replaceChildren(...secs.map(s => {
+    const row = document.createElement("div"); row.className = "utt";
+    const time = document.createElement("time"); time.textContent = fmt(s.start);
+    const text = document.createElement("div"); text.className = "text"; text.textContent = s.text;
+    row.append(time, text);
+    row.onclick = () => { player.currentTime = s.start; player.play(); };
+    return row;
+  }));
+  $("results").classList.remove("hidden");
+  $("results").scrollIntoView({ behavior: "smooth" });
+
+  player.ontimeupdate = () => {
+    const t = player.currentTime;
+    $("playhead").style.left = (100 * t / r.duration) + "%";
+    document.querySelectorAll(".utt").forEach(row => {
+      const u = r.utterances[row.dataset.i];
+      row.classList.toggle("active", t >= u.start && t < u.end + 0.25);
+    });
+  };
+}
+
+$("download").onclick = () => {
+  if (!result) return;
+  const lines = result.utterances.map(u => `[${fmt(u.start)}] Speaker ${u.speaker + 1}: ${u.text}`);
+  const parts = (result.summary_sections || []).map(s => `[${fmt(s.start)}-${fmt(s.end)}] ${s.text}`);
+  const text = lines.join("\n") + "\n\nSUMMARY\n" + result.summary + "\n" +
+               (parts.length ? "\nPART BY PART\n" + parts.join("\n") + "\n" : "");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+  a.download = (file ? file.name.replace(/\.[^.]+$/, "") : "transcript") + "_transcript.txt";
+  a.click();
+};
+</script>
+</body>
+</html>

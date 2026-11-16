@@ -1,0 +1,63 @@
+251 speakers | utterances: train 22805, val 2867, test 2867 | device cuda
+parameters: 1.27 M
+    step 500 | loss 4.787 | 9.8 it/s
+    step 1000 | loss 4.156 | 12.8 it/s
+    step 1500 | loss 3.684 | 14.1 it/s
+    step 2000 | loss 3.272 | 14.7 it/s
+    step 2500 | loss 2.946 | 15.1 it/s
+epoch  1/10 | train loss 2.7443 acc 33.91% | val loss 1.2774 acc 63.64% | 239s
+    step 500 | loss 1.081 | 17.1 it/s
+    step 1000 | loss 0.978 | 16.4 it/s
+    step 1500 | loss 0.907 | 16.2 it/s
+    step 2000 | loss 0.864 | 16.2 it/s
+    step 2500 | loss 0.812 | 16.2 it/s
+epoch  2/10 | train loss 0.7845 acc 77.09% | val loss 0.4263 acc 86.53% | 205s
+    step 500 | loss 0.491 | 10.7 it/s
+    step 1000 | loss 0.483 | 11.4 it/s
+    step 1500 | loss 0.448 | 11.5 it/s
+    step 2000 | loss 0.434 | 11.7 it/s
+    step 2500 | loss 0.417 | 12.1 it/s
+epoch  3/10 | train loss 0.4076 acc 87.57% | val loss 0.3746 acc 88.49% | 256s
+    step 500 | loss 0.336 | 10.7 it/s
+    step 1000 | loss 0.318 | 11.3 it/s
+    step 1500 | loss 0.301 | 11.5 it/s
+    step 2000 | loss 0.299 | 11.5 it/s
+    step 2500 | loss 0.299 | 11.6 it/s
+epoch  4/10 | train loss 0.2959 acc 90.98% | val loss 0.3273 acc 90.71% | 277s
+    step 500 | loss 0.235 | 10.6 it/s
+    step 1000 | loss 0.230 | 11.1 it/s
+    step 1500 | loss 0.232 | 11.9 it/s
+    step 2000 | loss 0.228 | 12.3 it/s
+    step 2500 | loss 0.222 | 12.7 it/s
+epoch  5/10 | train loss 0.2230 acc 93.13% | val loss 0.1962 acc 94.18% | 245s
+    step 500 | loss 0.173 | 10.8 it/s
+    step 1000 | loss 0.191 | 10.6 it/s
+    step 1500 | loss 0.191 | 10.4 it/s
+    step 2000 | loss 0.192 | 5.3 it/s
+    step 2500 | loss 0.188 | 5.1 it/s
+epoch  6/10 | train loss 0.1878 acc 94.16% | val loss 0.1884 acc 94.07% | 581s
+    step 500 | loss 0.170 | 8.3 it/s
+    step 1000 | loss 0.185 | 8.7 it/s
+    step 1500 | loss 0.177 | 8.9 it/s
+    step 2000 | loss 0.169 | 8.9 it/s
+    step 2500 | loss 0.173 | 9.0 it/s
+epoch  7/10 | train loss 0.1704 acc 94.68% | val loss 0.1142 acc 96.41% | 340s
+    step 500 | loss 0.119 | 10.2 it/s
+    step 1000 | loss 0.131 | 10.1 it/s
+    step 1500 | loss 0.134 | 10.3 it/s
+    step 2000 | loss 0.138 | 10.6 it/s
+    step 2500 | loss 0.134 | 11.2 it/s
+epoch  8/10 | train loss 0.1388 acc 95.71% | val loss 0.1828 acc 95.19% | 272s
+    step 500 | loss 0.129 | 11.5 it/s
+    step 1000 | loss 0.128 | 12.8 it/s
+    step 1500 | loss 0.140 | 13.0 it/s
+    step 2000 | loss 0.136 | 13.3 it/s
+    step 2500 | loss 0.134 | 13.5 it/s
+epoch  9/10 | train loss 0.1316 acc 95.92% | val loss 0.1268 acc 96.07% | 235s
+    step 500 | loss 0.110 | 12.8 it/s
+    step 1000 | loss 0.124 | 12.9 it/s
+    step 1500 | loss 0.128 | 12.6 it/s
+    step 2000 | loss 0.129 | 12.3 it/s
+    step 2500 | loss 0.128 | 12.7 it/s
+epoch 10/10 | train loss 0.1260 acc 96.12% | val loss 0.1068 acc 96.99% | 248s
+TEST (best checkpoint) | loss 0.0997 acc 96.89%

@@ -1,0 +1,76 @@
+{
+ "eer_in_domain": {
+  "eer_percent": 6.036376953125,
+  "threshold": 0.38899996876716614,
+  "pairs": 16436511
+ },
+ "eer_unseen_speakers": {
+  "eer_percent": 8.823288232088089,
+  "threshold": 0.3579999804496765,
+  "pairs": 14609715
+ },
+ "der_conversation_2spk": {
+  "missed": 16.32996632996633,
+  "false_alarm": 0.0,
+  "confusion": 0.0,
+  "DER": 16.32996632996633,
+  "speakers_true": 2,
+  "speakers_found": 2
+ },
+ "der_conversation_2spk_b": {
+  "missed": 3.11284046692607,
+  "false_alarm": 3.501945525291829,
+  "confusion": 0.0,
+  "DER": 6.614785992217898,
+  "speakers_true": 2,
+  "speakers_found": 2
+ },
+ "der_conversation_2spk_long": {
+  "missed": 19.63276836158192,
+  "false_alarm": 0.14124293785310735,
+  "confusion": 0.0,
+  "DER": 19.774011299435028,
+  "speakers_true": 2,
+  "speakers_found": 2
+ },
+ "der_conversation_3spk": {
+  "missed": 14.964028776978417,
+  "false_alarm": 0.14388489208633093,
+  "confusion": 0.0,
+  "DER": 15.107913669064748,
+  "speakers_true": 3,
+  "speakers_found": 3
+ },
+ "der_conversation_3spk_noisy": {
+  "missed": 13.945578231292517,
+  "false_alarm": 0.0,
+  "confusion": 0.5102040816326531,
+  "DER": 14.45578231292517,
+  "speakers_true": 3,
+  "speakers_found": 3
+ },
+ "der_conversation_4spk_noisy": {
+  "missed": 9.458128078817735,
+  "false_alarm": 0.49261083743842365,
+  "confusion": 15.665024630541872,
+  "DER": 25.61576354679803,
+  "speakers_true": 4,
+  "speakers_found": 3
+ },
+ "der_conversation_5spk": {
+  "missed": 13.153806317969964,
+  "false_alarm": 0.9321595028482651,
+  "confusion": 0.0,
+  "DER": 14.08596582081823,
+  "speakers_true": 5,
+  "speakers_found": 5
+ },
+ "der_monologue_1spk": {
+  "missed": 15.66951566951567,
+  "false_alarm": 0.0,
+  "confusion": 0.0,
+  "DER": 15.66951566951567,
+  "speakers_true": 1,
+  "speakers_found": 1
+ }
+}

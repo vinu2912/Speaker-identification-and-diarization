@@ -1,0 +1,25 @@
+# Python environment and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# LibriSpeech dataset (about 13 GB) - fetch with tools/download_dataset.py
+data/
+
+# Files uploaded through the app
+uploads/
+
+# Generated test audio (recreate with tools/make_conversation.py).
+# Two small demo clips are kept so the app can be tried straight after cloning.
+samples/*.wav
+samples/*.mp3
+!samples/conversation_2spk.wav
+!samples/conversation_3spk.mp3
+
+# Personal test recordings
+videoplayback*
+*.m4a
+
+# Local tool settings
+.claude/
